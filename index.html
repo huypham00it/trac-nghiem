@@ -1,0 +1,624 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Luyện AIL Specialist</title>
+<meta name="description" content="Luyện 130 câu trắc nghiệm AIL Specialist (人工智慧概論) với thuật toán lặp lại ngắt quãng.">
+<style>
+:root{
+  --bg:#f6f5f1; --surface:#ffffff; --surface-2:#efede7; --text:#1d1c1a; --muted:#6b6862;
+  --line:#dedad2; --accent:#2f5fd0; --accent-ink:#ffffff; --good:#1f8a4c; --good-bg:#e3f4ea;
+  --bad:#c23b2e; --bad-bg:#fbe6e3; --warn:#b26b00; --warn-bg:#fdf0d9; --blank:#fff2a8;
+  --shadow:0 1px 2px rgba(0,0,0,.05),0 4px 16px rgba(0,0,0,.05);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#151513; --surface:#1f1f1c; --surface-2:#2a2a26; --text:#ecebe6; --muted:#a19e96;
+    --line:#37362f; --accent:#7ea1ff; --accent-ink:#0f1630; --good:#5fd08f; --good-bg:#183526;
+    --bad:#ff8577; --bad-bg:#3d1d19; --warn:#f2b45a; --warn-bg:#3a2a12; --blank:#5a4d0f;
+    --shadow:none;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#151513; --surface:#1f1f1c; --surface-2:#2a2a26; --text:#ecebe6; --muted:#a19e96;
+  --line:#37362f; --accent:#7ea1ff; --accent-ink:#0f1630; --good:#5fd08f; --good-bg:#183526;
+  --bad:#ff8577; --bad-bg:#3d1d19; --warn:#f2b45a; --warn-bg:#3a2a12; --blank:#5a4d0f;
+  --shadow:none;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--text);
+  font:16px/1.6 system-ui,-apple-system,"Segoe UI",Roboto,"PingFang TC","Noto Sans TC","Microsoft JhengHei",sans-serif;
+  -webkit-text-size-adjust:100%}
+.wrap{max-width:760px;margin:0 auto;padding:16px 16px 80px}
+header{display:flex;align-items:center;gap:12px;justify-content:space-between;flex-wrap:wrap;margin-bottom:12px}
+h1{font-size:18px;margin:0;font-weight:650;letter-spacing:-.01em}
+h1 small{display:block;font-size:12px;font-weight:400;color:var(--muted)}
+nav{display:flex;gap:4px;background:var(--surface-2);padding:4px;border-radius:10px}
+nav button{border:0;background:transparent;color:var(--muted);padding:6px 12px;border-radius:7px;font:inherit;font-size:14px;cursor:pointer}
+nav button.on{background:var(--surface);color:var(--text);box-shadow:var(--shadow);font-weight:600}
+.counts{display:flex;gap:16px;font-size:13px;color:var(--muted);margin:4px 2px 12px;flex-wrap:wrap}
+.counts b{font-variant-numeric:tabular-nums;font-size:15px}
+.c-new b{color:var(--accent)} .c-learn b{color:var(--bad)} .c-rev b{color:var(--good)}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:20px;box-shadow:var(--shadow)}
+.meta{display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:12px;color:var(--muted);margin-bottom:10px}
+.tag{display:inline-block;padding:2px 8px;border-radius:99px;background:var(--surface-2);font-size:12px;color:var(--muted);white-space:nowrap}
+.tag.new{background:color-mix(in srgb,var(--accent) 15%,transparent);color:var(--accent)}
+.tag.learn,.tag.relearn{background:var(--bad-bg);color:var(--bad)}
+.tag.review{background:var(--good-bg);color:var(--good)}
+.q{font-size:19px;line-height:1.75;margin:0 0 6px;word-break:break-word}
+.blank{display:inline-block;min-width:3em;border-bottom:2px solid var(--muted);margin:0 2px}
+.fill{background:var(--blank);border-radius:4px;padding:0 3px;font-weight:600}
+.hint{font-size:13px;color:var(--warn);margin-bottom:12px}
+.opts{display:grid;gap:8px;margin-top:14px}
+.opt{display:flex;gap:12px;align-items:flex-start;text-align:left;width:100%;border:1.5px solid var(--line);
+  background:var(--surface);color:var(--text);border-radius:10px;padding:11px 14px;font:inherit;font-size:16px;cursor:pointer;line-height:1.5}
+.opt:hover:not(:disabled){border-color:var(--accent)}
+.opt .k{flex:0 0 auto;width:26px;height:26px;border-radius:7px;display:grid;place-items:center;background:var(--surface-2);font-size:13px;font-weight:700;color:var(--muted)}
+.opt.sel{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 8%,var(--surface))}
+.opt.sel .k{background:var(--accent);color:var(--accent-ink)}
+.opt.right{border-color:var(--good);background:var(--good-bg)}
+.opt.right .k{background:var(--good);color:var(--surface)}
+.opt.wrong{border-color:var(--bad);background:var(--bad-bg)}
+.opt.wrong .k{background:var(--bad);color:var(--surface)}
+.opt.missed{border-style:dashed;border-color:var(--good)}
+.opt:disabled{cursor:default}
+.tf{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px}
+.tf .opt{justify-content:center;font-size:18px;font-weight:600;padding:14px}
+.actions{display:flex;gap:8px;margin-top:16px;flex-wrap:wrap}
+.btn{border:1px solid var(--line);background:var(--surface);color:var(--text);border-radius:10px;padding:10px 16px;font:inherit;font-size:15px;cursor:pointer}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);font-weight:600}
+.btn:disabled{opacity:.45;cursor:default}
+.grades{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:16px}
+.grade{border:1px solid var(--line);background:var(--surface);color:var(--text);border-radius:10px;padding:8px 4px;font:inherit;cursor:pointer;text-align:center}
+.grade b{display:block;font-size:15px}
+.grade span{font-size:12px;color:var(--muted)}
+.grade.g0 b{color:var(--bad)} .grade.g1 b{color:var(--warn)} .grade.g2 b{color:var(--good)} .grade.g3 b{color:var(--accent)}
+.grade:hover{border-color:var(--text)}
+.result{margin-top:16px;padding:12px 14px;border-radius:10px;font-size:15px}
+.result.ok{background:var(--good-bg)} .result.no{background:var(--bad-bg)}
+.result h3{margin:0 0 4px;font-size:15px}
+.result .ok-t{color:var(--good)} .result .no-t{color:var(--bad)}
+.result p{margin:4px 0}
+.kbd{font-size:12px;color:var(--muted);margin-top:14px}
+kbd{font:600 11px ui-monospace,monospace;border:1px solid var(--line);border-bottom-width:2px;border-radius:4px;padding:0 4px;background:var(--surface-2)}
+.done{text-align:center;padding:36px 16px}
+.done h2{margin:0 0 6px;font-size:20px}
+.done p{color:var(--muted);margin:6px 0 16px}
+.list .item{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin-bottom:8px}
+.list .item .q{font-size:16px;margin:0}
+.list .ans{margin:8px 0 0;padding-left:0;list-style:none;font-size:14px}
+.list .ans li{padding:2px 0;color:var(--muted)}
+.list .ans li.r{color:var(--good);font-weight:600}
+.tools{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.tools input,.tools select,.set input[type=number]{font:inherit;font-size:15px;padding:8px 10px;border:1px solid var(--line);border-radius:9px;background:var(--surface);color:var(--text)}
+.tools input{flex:1 1 200px;min-width:0}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:16px}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px}
+.stat .v{font-size:26px;font-weight:650;font-variant-numeric:tabular-nums;line-height:1.2}
+.stat .l{font-size:13px;color:var(--muted)}
+.bar{display:flex;height:14px;border-radius:99px;overflow:hidden;background:var(--surface-2);margin:8px 0 6px}
+.bar i{display:block;height:100%}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:13px;color:var(--muted)}
+.legend span::before{content:"";display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;background:var(--c)}
+.fc{display:flex;align-items:flex-end;gap:6px;height:120px;margin-top:10px}
+.fc div{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;font-size:11px;color:var(--muted)}
+.fc i{display:block;width:100%;background:var(--good);border-radius:4px 4px 0 0;min-height:2px}
+.fc em{font-style:normal;color:var(--text);font-variant-numeric:tabular-nums}
+section h2{font-size:16px;margin:20px 0 8px}
+.set label{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--line)}
+.set label:last-child{border:0}
+.set .d{font-size:13px;color:var(--muted)}
+.help{font-size:14px;color:var(--muted)}
+.help li{margin:4px 0}
+.hide{display:none!important}
+@media (max-width:520px){
+  .q{font-size:17px}
+  .card{padding:16px}
+  nav button{padding:6px 9px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Luyện thi AIL Specialist<small>最新人工智慧概論 · 130 câu · lặp lại ngắt quãng</small></h1>
+    <nav id="nav">
+      <button data-v="study" class="on">Học</button>
+      <button data-v="list">Danh sách</button>
+      <button data-v="stats">Thống kê</button>
+      <button data-v="settings">Cài đặt</button>
+    </nav>
+  </header>
+
+  <!-- STUDY -->
+  <div id="v-study">
+    <div class="counts" id="counts"></div>
+    <div id="study"></div>
+  </div>
+
+  <!-- LIST -->
+  <div id="v-list" class="hide">
+    <div class="tools">
+      <input id="search" type="search" placeholder="Tìm theo nội dung hoặc mã câu (vd: SC12)…">
+      <select id="ftype">
+        <option value="">Mọi dạng</option><option value="tf">Đúng/Sai</option>
+        <option value="multi">Nhiều đáp án</option><option value="single">Một đáp án</option>
+      </select>
+      <select id="fstate">
+        <option value="">Mọi trạng thái</option><option value="new">Chưa học</option>
+        <option value="learn">Đang học</option><option value="young">Đang ôn (&lt;21 ngày)</option>
+        <option value="mature">Đã thuộc (≥21 ngày)</option><option value="hard">Hay sai</option>
+      </select>
+    </div>
+    <div class="list" id="list"></div>
+  </div>
+
+  <!-- STATS -->
+  <div id="v-stats" class="hide"></div>
+
+  <!-- SETTINGS -->
+  <div id="v-settings" class="hide">
+    <div class="card set">
+      <label><div>Số câu mới mỗi ngày<div class="d">Câu chưa từng học được đưa vào mỗi ngày</div></div>
+        <input type="number" id="s-new" min="1" max="130" style="width:84px"></label>
+      <label><div>Câu Đúng/Sai</div><input type="checkbox" id="s-tf"></label>
+      <label><div>Câu nhiều đáp án (複選)</div><input type="checkbox" id="s-multi"></label>
+      <label><div>Câu một đáp án (單選)</div><input type="checkbox" id="s-single"></label>
+      <label><div>Xáo thứ tự đáp án<div class="d">Buộc nhớ nội dung, không nhớ vị trí chữ cái</div></div><input type="checkbox" id="s-shuffle"></label>
+      <label><div>Câu mới theo thứ tự ngẫu nhiên<div class="d">Tắt để học theo thứ tự trong đề</div></div><input type="checkbox" id="s-randnew"></label>
+      <label><div>Giao diện</div>
+        <select id="s-theme" style="font:inherit;padding:6px 8px;border-radius:8px;border:1px solid var(--line);background:var(--surface);color:var(--text)">
+          <option value="">Theo hệ thống</option><option value="light">Sáng</option><option value="dark">Tối</option></select></label>
+    </div>
+    <section>
+      <h2>Dữ liệu tiến độ</h2>
+      <p class="help">Tiến độ lưu trong trình duyệt này. Xuất file để sao lưu hoặc chuyển sang máy khác.</p>
+      <div class="actions">
+        <button class="btn" id="b-export">Xuất tiến độ</button>
+        <button class="btn" id="b-import">Nhập tiến độ</button>
+        <input type="file" id="f-import" accept="application/json" class="hide">
+        <button class="btn" id="b-reset" style="color:var(--bad)">Xóa toàn bộ tiến độ</button>
+      </div>
+    </section>
+    <section>
+      <h2>Thuật toán hoạt động thế nào?</h2>
+      <ul class="help">
+        <li><b>Câu mới</b> đi qua các bước học ngắn: 1 phút → 10 phút. Trả lời đúng ở bước cuối thì câu “tốt nghiệp” và hẹn lại sau 1 ngày.</li>
+        <li><b>Câu đang ôn</b>: mỗi lần đúng, khoảng cách nhân với hệ số dễ (mặc định 2.5): 1 → 3 → 7 → 18 ngày…</li>
+        <li>Chọn <b>Khó</b> thì khoảng cách tăng chậm (×1.2) và hệ số giảm; <b>Dễ</b> thì tăng nhanh hơn (×1.3 thêm) và hệ số tăng.</li>
+        <li><b>Trả lời sai</b> → tự động “Lại”: câu quay về học lại sau 10 phút, khoảng cách bị giảm một nửa, hệ số dễ −0.2. Câu sai nhiều sẽ xuất hiện dày hơn.</li>
+        <li>Trong buổi học, câu sai sẽ được hỏi lại ngay sau vài câu khác (tối đa sớm 20 phút) cho đến khi nhớ.</li>
+      </ul>
+    </section>
+  </div>
+</div>
+
+<script src="questions.js"></script>
+<script>
+(() => {
+"use strict";
+const Q = window.QUESTIONS;
+const BY_ID = Object.fromEntries(Q.map(q => [q.id, q]));
+const KEY = "ail-srs-v1";
+const MIN = 60e3, DAY = 864e5;
+const LEARN_STEPS = [1, 10];      // phút
+const RELEARN_STEPS = [10];       // phút
+const LEARN_AHEAD = 20 * MIN;
+const TYPE_LABEL = {tf: "Đúng/Sai", multi: "Nhiều đáp án", single: "Một đáp án"};
+const STATE_LABEL = {new: "Mới", learn: "Đang học", relearn: "Học lại", review: "Ôn tập"};
+const BLANK_RE = /_{3,}/g;
+
+/* ---------- storage ---------- */
+const defaults = () => ({cards: {}, settings: {newPerDay: 20, types: {tf: true, multi: true, single: true}, shuffle: true, randNew: true, theme: ""}, days: {}, newOrder: null});
+let db;
+try { db = Object.assign(defaults(), JSON.parse(localStorage.getItem(KEY) || "{}")); } catch (e) { db = defaults(); }
+db.settings = Object.assign(defaults().settings, db.settings);
+db.settings.types = Object.assign(defaults().settings.types, db.settings.types);
+function save() { try { localStorage.setItem(KEY, JSON.stringify(db)); } catch (e) {} }
+
+if (!db.newOrder || db.newOrder.length !== Q.length) {
+  db.newOrder = shuffleArr(Q.map(q => q.id)); save();
+}
+
+/* ---------- helpers ---------- */
+function shuffleArr(a) { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+function esc(s) { return String(s).replace(/[&<>"]/g, c => ({"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;"}[c])); }
+function dayKey(t = Date.now()) { const d = new Date(t); return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0"); }
+function endOfToday() { const d = new Date(); d.setHours(24, 0, 0, 0); return d.getTime(); }
+function today() { const k = dayKey(); return db.days[k] || (db.days[k] = {newDone: 0, reviews: 0, correct: 0, extraNew: 0}); }
+function card(id) { return db.cards[id] || {s: "new"}; }
+function fmtIvl(ms) {
+  const m = ms / MIN;
+  if (m < 60) return Math.max(1, Math.round(m)) + " phút";
+  const h = m / 60; if (h < 24) return Math.round(h) + " giờ";
+  const d = ms / DAY; if (d < 30) return Math.round(d) + " ngày";
+  if (d < 365) return (d / 30).toFixed(d < 300 ? 1 : 0).replace(".0", "") + " tháng";
+  return (d / 365).toFixed(1).replace(".0", "") + " năm";
+}
+function enabled(q) { return db.settings.types[q.type]; }
+
+/* ---------- SRS scheduler (biến thể SM-2 kiểu Anki) ---------- */
+// grade: 0 Lại, 1 Khó, 2 Tốt, 3 Dễ
+function schedule(c, grade, now = Date.now()) {
+  c = Object.assign({s: "new", step: 0, ivl: 0, ease: 2.5, reps: 0, lapses: 0}, c);
+  c = {...c};
+  const fuzz = d => d < 3 ? d : d * (0.95 + Math.random() * 0.1);
+  if (c.s === "new" || c.s === "learn") {
+    c.s = "learn";
+    if (grade === 0) { c.step = 0; c.due = now + LEARN_STEPS[0] * MIN; }
+    else if (grade === 1) {
+      const a = LEARN_STEPS[c.step], b = LEARN_STEPS[c.step + 1] ?? a * 1.5;
+      c.due = now + (c.step === 0 ? (a + b) / 2 : a) * MIN;
+    } else if (grade === 2) {
+      c.step++;
+      if (c.step >= LEARN_STEPS.length) { c.s = "review"; c.ivl = 1; c.due = now + DAY; }
+      else c.due = now + LEARN_STEPS[c.step] * MIN;
+    } else { c.s = "review"; c.ivl = 4; c.due = now + 4 * DAY; }
+  } else if (c.s === "review") {
+    if (grade === 0) {
+      c.lapses++; c.ease = Math.max(1.3, c.ease - 0.2); c.ivl = Math.max(1, c.ivl * 0.5);
+      c.s = "relearn"; c.step = 0; c.due = now + RELEARN_STEPS[0] * MIN;
+    } else {
+      const late = Math.max(0, (now - c.due) / DAY);
+      let ivl;
+      if (grade === 1) { ivl = Math.max(c.ivl + 1, c.ivl * 1.2); c.ease = Math.max(1.3, c.ease - 0.15); }
+      else if (grade === 2) ivl = Math.max(c.ivl + 1, (c.ivl + late / 2) * c.ease);
+      else { ivl = Math.max(c.ivl + 2, (c.ivl + late) * c.ease * 1.3); c.ease += 0.15; }
+      c.ivl = Math.min(fuzz(ivl), 3650); c.due = now + c.ivl * DAY;
+    }
+  } else if (c.s === "relearn") {
+    if (grade === 0) { c.step = 0; c.due = now + RELEARN_STEPS[0] * MIN; }
+    else if (grade === 1) c.due = now + RELEARN_STEPS[c.step] * MIN * 1.5;
+    else if (grade === 2) {
+      c.step++;
+      if (c.step >= RELEARN_STEPS.length) { c.s = "review"; c.due = now + c.ivl * DAY; }
+      else c.due = now + RELEARN_STEPS[c.step] * MIN;
+    } else { c.s = "review"; c.ivl += 1; c.due = now + c.ivl * DAY; }
+  }
+  c.reps++; c.last = now;
+  return c;
+}
+function preview(c, g) { const now = Date.now(); return schedule(c, g, now).due - now; }
+
+/* ---------- queue ---------- */
+function queueInfo(now = Date.now()) {
+  const eod = endOfToday(), t = today();
+  const learn = [], review = [], fresh = [];
+  for (const q of Q) {
+    if (!enabled(q)) continue;
+    const c = db.cards[q.id];
+    if (!c || c.s === "new") continue;
+    if (c.s === "learn" || c.s === "relearn") learn.push(q.id);
+    else if (c.due <= eod) review.push(q.id);
+  }
+  const order = db.settings.randNew ? db.newOrder : Q.map(q => q.id);
+  const newLeft = Math.max(0, db.settings.newPerDay + t.extraNew - t.newDone);
+  for (const id of order) {
+    if (fresh.length >= newLeft) break;
+    const q = BY_ID[id];
+    if (enabled(q) && (!db.cards[id] || db.cards[id].s === "new")) fresh.push(id);
+  }
+  return {learn, review, fresh};
+}
+let lastId = null;
+function pickNext() {
+  const now = Date.now();
+  const {learn, review, fresh} = queueInfo(now);
+  const byDue = (a, b) => db.cards[a].due - db.cards[b].due;
+  const notLast = arr => arr.length > 1 ? arr.filter(id => id !== lastId) : arr;
+  const learnDue = learn.filter(id => db.cards[id].due <= now).sort(byDue);
+  if (learnDue.length) { const l = notLast(learnDue); if (l[0] !== lastId || (!review.length && !fresh.length)) return l[0]; }
+  if (review.length || fresh.length) {
+    const r = notLast(review.sort(byDue)), f = notLast(fresh);
+    const pickNew = f.length && (!r.length || Math.random() < f.length / (f.length + r.length));
+    if (pickNew) return f[0];
+    if (r.length) return r[0];
+  }
+  const ahead = learn.filter(id => db.cards[id].due <= now + LEARN_AHEAD).sort(byDue);
+  if (ahead.length) { const a = notLast(ahead); return a[0]; }
+  return null;
+}
+
+/* ---------- study view ---------- */
+const $ = s => document.querySelector(s);
+let cur = null; // {id, perm, sel:Set, revealed, correct}
+
+function renderCounts() {
+  const {learn, review, fresh} = queueInfo();
+  const now = Date.now();
+  const t = today();
+  $("#counts").innerHTML =
+    `<span class="c-new">Mới <b>${fresh.length}</b></span>` +
+    `<span class="c-learn">Đang học <b>${learn.filter(id => db.cards[id].due <= now + LEARN_AHEAD).length}</b></span>` +
+    `<span class="c-rev">Cần ôn <b>${review.length}</b></span>` +
+    `<span>Hôm nay đã làm <b>${t.reviews}</b>${t.reviews ? ` · đúng ${Math.round(100 * t.correct / t.reviews)}%` : ""}</span>`;
+}
+
+function stemHTML(q, fillOpts) {
+  let s = esc(q.q);
+  const blanks = (q.q.match(BLANK_RE) || []).length;
+  if (fillOpts && blanks === 1) {
+    return s.replace(BLANK_RE, `<span class="fill">${fillOpts.map(esc).join("、")}</span>`);
+  }
+  if (fillOpts && blanks === 2 && fillOpts.length === 1) {
+    const parts = fillOpts[0].split(/\s*[,，]\s*/);
+    if (parts.length === 2) { let i = 0; return s.replace(BLANK_RE, () => `<span class="fill">${esc(parts[i++])}</span>`); }
+  }
+  return s.replace(BLANK_RE, '<span class="blank"></span>');
+}
+
+function nextCard() {
+  const id = pickNext();
+  if (!id) { cur = null; renderDone(); renderCounts(); return; }
+  const q = BY_ID[id];
+  const perm = q.opts ? (db.settings.shuffle ? shuffleArr([0, 1, 2, 3]) : [0, 1, 2, 3]) : null;
+  cur = {id, perm, sel: new Set(), revealed: false, correct: null};
+  lastId = id;
+  renderCard();
+  renderCounts();
+}
+
+function renderDone() {
+  const now = Date.now();
+  let next = Infinity;
+  for (const q of Q) { const c = db.cards[q.id]; if (enabled(q) && c && c.s !== "new" && c.due < next) next = c.due; }
+  const anyNew = Q.some(q => enabled(q) && (!db.cards[q.id] || db.cards[q.id].s === "new"));
+  const t = today();
+  $("#study").innerHTML = `<div class="card done">
+    <h2>Xong phần hôm nay 🎉</h2>
+    <p>${t.reviews ? `Bạn đã làm ${t.reviews} lượt, đúng ${Math.round(100 * t.correct / t.reviews)}%. ` : ""}
+    ${next < Infinity ? `Câu tiếp theo đến hạn sau <b>${fmtIvl(next - now)}</b>.` : ""}</p>
+    <div class="actions" style="justify-content:center">
+      ${anyNew ? `<button class="btn primary" id="more">Học thêm 10 câu mới</button>` : `<span class="help">Bạn đã học hết toàn bộ câu hỏi.</span>`}
+    </div></div>`;
+  const m = $("#more"); if (m) m.onclick = () => { today().extraNew += 10; save(); nextCard(); };
+}
+
+function renderCard() {
+  const q = BY_ID[cur.id], c = card(cur.id);
+  const rv = cur.revealed;
+  let html = `<div class="card"><div class="meta">
+    <span class="tag ${c.s}">${STATE_LABEL[c.s]}</span>
+    <span class="tag">${TYPE_LABEL[q.type]} · ${q.id}</span>
+    ${c.lapses ? `<span class="tag">sai ${c.lapses} lần</span>` : ""}</div>`;
+  const fill = rv && q.opts ? q.a.map(i => q.opts[i]) : null;
+  html += `<p class="q">${stemHTML(q, fill)}</p>`;
+  if (q.type === "multi") html += `<div class="hint">${q.min === 2 ? "Chọn đúng 2 đáp án" : "Chọn từ 3 đáp án trở lên"} · ${esc(q.hint)}</div>`;
+
+  if (q.type === "tf") {
+    html += `<div class="tf">`;
+    [[true, "O · Đúng"], [false, "X · Sai"]].forEach(([v, label], i) => {
+      let cls = "opt";
+      if (rv) { if (v === q.a) cls += " right"; else if (cur.sel.has(v)) cls += " wrong"; }
+      html += `<button class="${cls}" data-tf="${v}" ${rv ? "disabled" : ""}>${label}</button>`;
+    });
+    html += `</div>`;
+  } else {
+    html += `<div class="opts">`;
+    cur.perm.forEach((oi, pos) => {
+      const isR = q.a.includes(oi), isS = cur.sel.has(oi);
+      let cls = "opt";
+      if (rv) { if (isR && isS) cls += " right"; else if (isR) cls += " right missed"; else if (isS) cls += " wrong"; }
+      else if (isS) cls += " sel";
+      html += `<button class="${cls}" data-o="${oi}" ${rv ? "disabled" : ""}><span class="k">${"ABCD"[pos]}</span><span>${esc(q.opts[oi])}</span></button>`;
+    });
+    html += `</div>`;
+  }
+
+  if (!rv) {
+    if (q.type === "multi") html += `<div class="actions"><button class="btn primary" id="check" ${cur.sel.size ? "" : "disabled"}>Kiểm tra</button>
+      <button class="btn" id="dunno">Không biết</button></div>`;
+    else html += `<div class="actions"><button class="btn" id="dunno">Không biết – xem đáp án</button></div>`;
+    html += `<div class="kbd">Phím tắt: ${q.type === "tf" ? "<kbd>O</kbd>/<kbd>1</kbd> Đúng · <kbd>X</kbd>/<kbd>2</kbd> Sai" : "<kbd>A</kbd>–<kbd>D</kbd> hoặc <kbd>1</kbd>–<kbd>4</kbd> chọn" + (q.type === "multi" ? " · <kbd>Enter</kbd> kiểm tra" : "")}</div>`;
+  } else {
+    const ok = cur.correct;
+    let ansText;
+    if (q.type === "tf") ansText = q.a ? "Câu này <b>ĐÚNG (O)</b>" : "Câu này <b>SAI (X)</b>";
+    else ansText = "Đáp án: " + q.a.map(i => `<b>${"ABCD"[cur.perm.indexOf(i)]}</b>. ${esc(q.opts[i])}`).join("<br>");
+    html += `<div class="result ${ok ? "ok" : "no"}"><h3 class="${ok ? "ok-t" : "no-t"}">${ok ? "Chính xác!" : "Chưa đúng"}</h3><p>${ansText}</p>
+      ${q.opts ? `<p class="help" style="margin-top:6px">Đề gốc: đáp án ${q.a.map(i => "ABCD"[i]).join("")}</p>` : ""}</div>`;
+    if (ok) {
+      const labels = ["Lại", "Khó", "Tốt", "Dễ"];
+      html += `<div class="grades">` + labels.map((l, g) => `<button class="grade g${g}" data-g="${g}"><b>${l}</b><span>${fmtIvl(preview(c, g))}</span></button>`).join("") + `</div>
+        <div class="kbd"><kbd>1</kbd>–<kbd>4</kbd> chấm mức nhớ · <kbd>Enter</kbd>/<kbd>Space</kbd> = Tốt</div>`;
+    } else {
+      html += `<div class="actions"><button class="btn primary" id="cont">Tiếp tục · hỏi lại sau ${fmtIvl(preview(c, 0))}</button></div>
+        <div class="kbd"><kbd>Enter</kbd>/<kbd>Space</kbd> tiếp tục</div>`;
+    }
+  }
+  html += `</div>`;
+  $("#study").innerHTML = html;
+
+  $("#study").querySelectorAll("[data-tf]").forEach(b => b.onclick = () => answerTF(b.dataset.tf === "true"));
+  $("#study").querySelectorAll("[data-o]").forEach(b => b.onclick = () => clickOpt(+b.dataset.o));
+  $("#study").querySelectorAll("[data-g]").forEach(b => b.onclick = () => grade(+b.dataset.g));
+  const ch = $("#check"); if (ch) ch.onclick = reveal;
+  const dn = $("#dunno"); if (dn) dn.onclick = () => { cur.sel.clear(); reveal(); };
+  const ct = $("#cont"); if (ct) ct.onclick = () => grade(0);
+}
+
+function answerTF(v) { if (cur.revealed) return; cur.sel = new Set([v]); reveal(); }
+function clickOpt(oi) {
+  if (cur.revealed) return;
+  const q = BY_ID[cur.id];
+  if (q.type === "single") { cur.sel = new Set([oi]); reveal(); return; }
+  cur.sel.has(oi) ? cur.sel.delete(oi) : cur.sel.add(oi);
+  renderCard();
+}
+function reveal() {
+  const q = BY_ID[cur.id];
+  if (q.type === "tf") cur.correct = cur.sel.has(q.a) && cur.sel.size === 1;
+  else cur.correct = cur.sel.size === q.a.length && q.a.every(i => cur.sel.has(i));
+  cur.revealed = true;
+  renderCard();
+}
+function grade(g) {
+  if (!cur || !cur.revealed) return;
+  const q = BY_ID[cur.id];
+  const prev = card(cur.id);
+  const c = schedule(prev, cur.correct ? g : 0);
+  c.seen = (prev.seen || 0) + 1;
+  c.right = (prev.right || 0) + (cur.correct ? 1 : 0);
+  const t = today();
+  if (prev.s === "new") t.newDone++;
+  t.reviews++; if (cur.correct) t.correct++;
+  db.cards[cur.id] = c;
+  save();
+  nextCard();
+}
+
+document.addEventListener("keydown", e => {
+  if (view !== "study" || !cur || e.target.matches("input,select,textarea") || e.metaKey || e.ctrlKey || e.altKey) return;
+  const q = BY_ID[cur.id], k = e.key.toLowerCase();
+  if (!cur.revealed) {
+    if (q.type === "tf") {
+      if (k === "o" || k === "1" || k === "đ") { e.preventDefault(); answerTF(true); }
+      else if (k === "x" || k === "2" || k === "s") { e.preventDefault(); answerTF(false); }
+    } else {
+      let pos = "abcd".indexOf(k); if (pos < 0) pos = "1234".indexOf(k);
+      if (pos >= 0) { e.preventDefault(); clickOpt(cur.perm[pos]); }
+      else if (k === "enter" && q.type === "multi" && cur.sel.size) { e.preventDefault(); reveal(); }
+    }
+  } else {
+    if (k === "enter" || k === " ") { e.preventDefault(); grade(cur.correct ? 2 : 0); }
+    else if (cur.correct && "1234".includes(k)) { e.preventDefault(); grade(+k - 1); }
+  }
+});
+
+/* ---------- list view ---------- */
+function classify(c) {
+  if (!c || c.s === "new") return "new";
+  if (c.s !== "review") return "learn";
+  return c.ivl >= 21 ? "mature" : "young";
+}
+function isHard(c) { return c && (c.lapses >= 2 || (c.seen >= 3 && c.right / c.seen < 0.6)); }
+function renderList() {
+  const term = $("#search").value.trim().toLowerCase(), ft = $("#ftype").value, fs = $("#fstate").value;
+  const now = Date.now();
+  const rows = Q.filter(q => {
+    const c = db.cards[q.id];
+    if (ft && q.type !== ft) return false;
+    if (fs === "hard" ? !isHard(c) : fs && classify(c) !== fs) return false;
+    if (term && !(q.id.toLowerCase() === term || q.q.toLowerCase().includes(term) || (q.opts || []).some(o => o.toLowerCase().includes(term)))) return false;
+    return true;
+  });
+  $("#list").innerHTML = `<p class="help">${rows.length} câu</p>` + rows.map(q => {
+    const c = db.cards[q.id];
+    const st = c && c.s !== "new" ? `<span class="tag ${c.s}">${STATE_LABEL[c.s]}</span>
+      <span>${c.due <= now ? "đến hạn" : "ôn sau " + fmtIvl(c.due - now)}</span>
+      <span>· đúng ${c.right || 0}/${c.seen || 0}</span>` : `<span class="tag new">Mới</span>`;
+    let body;
+    if (q.type === "tf") body = `<ul class="ans"><li class="r">${q.a ? "O · Đúng" : "X · Sai"}</li></ul>`;
+    else body = `<ul class="ans">${q.opts.map((o, i) => `<li class="${q.a.includes(i) ? "r" : ""}">${q.a.includes(i) ? "✓" : "&nbsp;&nbsp;"} (${"ABCD"[i]}) ${esc(o)}</li>`).join("")}</ul>`;
+    return `<div class="item"><div class="meta"><span class="tag">${q.id}</span>${st}
+      ${c && c.s !== "new" ? `<button class="btn" style="padding:2px 8px;font-size:12px;margin-left:auto" data-reset="${q.id}">Học lại từ đầu</button>` : ""}</div>
+      <p class="q">${stemHTML(q, q.opts ? q.a.map(i => q.opts[i]) : null)}</p>${body}</div>`;
+  }).join("");
+  $("#list").querySelectorAll("[data-reset]").forEach(b => b.onclick = () => { delete db.cards[b.dataset.reset]; save(); renderList(); });
+}
+["#search", "#ftype", "#fstate"].forEach(s => $(s).addEventListener("input", renderList));
+
+/* ---------- stats view ---------- */
+function renderStats() {
+  const counts = {new: 0, learn: 0, young: 0, mature: 0}; let hard = 0;
+  for (const q of Q) { const c = db.cards[q.id]; counts[classify(c)]++; if (isHard(c)) hard++; }
+  const total = Q.length;
+  let reviews = 0, correct = 0;
+  for (const d of Object.values(db.days)) { reviews += d.reviews; correct += d.correct; }
+  const eod = endOfToday(), fc = [];
+  for (let i = 0; i < 7; i++) fc.push(0);
+  for (const q of Q) {
+    const c = db.cards[q.id]; if (!c || c.s === "new") continue;
+    const i = c.due <= eod ? 0 : Math.ceil((c.due - eod) / DAY);
+    if (i < 7) fc[i]++;
+  }
+  const mx = Math.max(1, ...fc);
+  const dayNames = ["CN", "T2", "T3", "T4", "T5", "T6", "T7"];
+  const pct = n => (100 * n / total) + "%";
+  $("#v-stats").innerHTML = `
+    <div class="stats">
+      <div class="stat"><div class="v">${Math.round(100 * (counts.young + counts.mature) / total)}%</div><div class="l">Đã qua giai đoạn học</div></div>
+      <div class="stat"><div class="v">${counts.mature}</div><div class="l">Câu đã thuộc lâu (≥21 ngày)</div></div>
+      <div class="stat"><div class="v">${reviews ? Math.round(100 * correct / reviews) + "%" : "–"}</div><div class="l">Tỉ lệ đúng (${reviews} lượt)</div></div>
+      <div class="stat"><div class="v">${hard}</div><div class="l">Câu hay sai</div></div>
+    </div>
+    <div class="card">
+      <b>Tiến độ ${total} câu</b>
+      <div class="bar"><i style="width:${pct(counts.mature)};background:var(--good)"></i><i style="width:${pct(counts.young)};background:color-mix(in srgb,var(--good) 45%,transparent)"></i><i style="width:${pct(counts.learn)};background:var(--bad)"></i></div>
+      <div class="legend">
+        <span style="--c:var(--good)">Đã thuộc ${counts.mature}</span>
+        <span style="--c:color-mix(in srgb,var(--good) 45%,transparent)">Đang ôn ${counts.young}</span>
+        <span style="--c:var(--bad)">Đang học ${counts.learn}</span>
+        <span style="--c:var(--surface-2)">Chưa học ${counts.new}</span>
+      </div>
+    </div>
+    <section><h2>Số câu đến hạn 7 ngày tới</h2>
+      <div class="card"><div class="fc">${fc.map((n, i) => {
+        const d = new Date(Date.now() + i * DAY);
+        return `<div><em>${n}</em><i style="height:${(n / mx) * 85}%"></i>${i === 0 ? "Nay" : dayNames[d.getDay()]}</div>`;
+      }).join("")}</div></div></section>
+    ${hard ? `<section><h2>Câu hay sai</h2><p class="help">Xem lại ở tab Danh sách → lọc “Hay sai”.</p></section>` : ""}`;
+}
+
+/* ---------- settings ---------- */
+function applyTheme() { const t = db.settings.theme; if (t) document.documentElement.dataset.theme = t; else delete document.documentElement.dataset.theme; }
+function bindSettings() {
+  const s = db.settings;
+  $("#s-new").value = s.newPerDay;
+  $("#s-tf").checked = s.types.tf; $("#s-multi").checked = s.types.multi; $("#s-single").checked = s.types.single;
+  $("#s-shuffle").checked = s.shuffle; $("#s-randnew").checked = s.randNew; $("#s-theme").value = s.theme;
+}
+$("#s-new").onchange = e => { db.settings.newPerDay = Math.max(1, Math.min(130, +e.target.value || 20)); save(); };
+["tf", "multi", "single"].forEach(t => $("#s-" + t).onchange = e => {
+  db.settings.types[t] = e.target.checked;
+  if (!Object.values(db.settings.types).some(Boolean)) { db.settings.types[t] = true; e.target.checked = true; }
+  save();
+});
+$("#s-shuffle").onchange = e => { db.settings.shuffle = e.target.checked; save(); };
+$("#s-randnew").onchange = e => { db.settings.randNew = e.target.checked; save(); };
+$("#s-theme").onchange = e => { db.settings.theme = e.target.value; save(); applyTheme(); };
+$("#b-export").onclick = () => {
+  const blob = new Blob([JSON.stringify(db, null, 1)], {type: "application/json"});
+  const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = `ail-tien-do-${dayKey()}.json`; a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+};
+$("#b-import").onclick = () => $("#f-import").click();
+$("#f-import").onchange = async e => {
+  const f = e.target.files[0]; if (!f) return;
+  try {
+    const d = JSON.parse(await f.text());
+    if (!d.cards) throw 0;
+    db = Object.assign(defaults(), d); save(); bindSettings(); applyTheme(); alert("Đã nhập tiến độ.");
+  } catch (_) { alert("File không hợp lệ."); }
+  e.target.value = "";
+};
+$("#b-reset").onclick = () => {
+  if (!confirm("Xóa toàn bộ tiến độ học? Không thể hoàn tác.")) return;
+  const s = db.settings; db = defaults(); db.settings = s; db.newOrder = shuffleArr(Q.map(q => q.id)); save(); show("study");
+};
+
+/* ---------- navigation ---------- */
+let view = "study";
+function show(v) {
+  view = v;
+  document.querySelectorAll("#nav button").forEach(b => b.classList.toggle("on", b.dataset.v === v));
+  ["study", "list", "stats", "settings"].forEach(x => $("#v-" + x).classList.toggle("hide", x !== v));
+  if (v === "study") { if (!cur || cur.revealed === false && !BY_ID[cur.id] || !enabled(BY_ID[cur.id])) nextCard(); else { renderCard(); renderCounts(); } }
+  if (v === "list") renderList();
+  if (v === "stats") renderStats();
+  if (v === "settings") bindSettings();
+  window.scrollTo(0, 0);
+}
+document.querySelectorAll("#nav button").forEach(b => b.onclick = () => show(b.dataset.v));
+
+// Khi đang ở màn "xong", tự kiểm tra lại mỗi 30 giây xem có câu đến hạn chưa.
+setInterval(() => { if (view === "study" && !cur && pickNext()) nextCard(); else if (view === "study") renderCounts(); }, 30e3);
+
+applyTheme();
+show("study");
+})();
+</script>
+</body>
+</html>
