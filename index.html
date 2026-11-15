@@ -81,6 +81,7 @@ nav button.on{background:var(--surface);color:var(--text);box-shadow:var(--shado
 .result h3{margin:0 0 4px;font-size:15px}
 .result .ok-t{color:var(--good)} .result .no-t{color:var(--bad)}
 .result p{margin:4px 0}
+.kw{font-weight:700;box-shadow:inset 0 -.38em color-mix(in srgb,var(--accent) 22%,transparent);border-radius:2px}
 .tip{margin-top:10px;padding:10px 12px;border-radius:9px;background:var(--warn-bg);font-size:14px;line-height:1.55}
 .tip::before{content:"💡 Mẹo: ";font-weight:700;color:var(--warn)}
 .kbd{font-size:12px;color:var(--muted);margin-top:14px}
@@ -227,7 +228,7 @@ if (!db.newOrder || db.newOrder.length !== Q.length) {
 
 /* ---------- helpers ---------- */
 function shuffleArr(a) { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
-function tipHTML(id) { const t = (window.TIPS || {})[id]; return t ? `<div class="tip">${esc(t).replace(/\*\*(.+?)\*\*/g, "<b>$1</b>")}</div>` : ""; }
+function tipHTML(id) { const t = (window.TIPS || {})[id]; return t ? `<div class="tip">${esc(t[1]).replace(/\*\*(.+?)\*\*/g, "<b>$1</b>")}</div>` : ""; }
 function esc(s) { return String(s).replace(/[&<>"]/g, c => ({"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;"}[c])); }
 function dayKey(t = Date.now()) { const d = new Date(t); return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0"); }
 function endOfToday() { const d = new Date(); d.setHours(24, 0, 0, 0); return d.getTime(); }
@@ -340,8 +341,18 @@ function renderCounts() {
     `<span>Hôm nay đã làm <b>${t.reviews}</b>${t.reviews ? ` · đúng ${Math.round(100 * t.correct / t.reviews)}%` : ""}</span>`;
 }
 
+function markKeywords(id, text) {
+  const t = (window.TIPS || {})[id];
+  if (!t) return esc(text);
+  const rs = [];
+  for (const k of t[0]) { const i = text.indexOf(k); if (i >= 0) rs.push([i, i + k.length]); }
+  rs.sort((a, b) => a[0] - b[0]);
+  let out = "", pos = 0;
+  for (const [a, b] of rs) { if (a < pos) continue; out += esc(text.slice(pos, a)) + '<b class="kw">' + esc(text.slice(a, b)) + "</b>"; pos = b; }
+  return out + esc(text.slice(pos));
+}
 function stemHTML(q, fillOpts) {
-  let s = esc(q.q);
+  let s = markKeywords(q.id, q.q);
   const blanks = (q.q.match(BLANK_RE) || []).length;
   if (fillOpts && blanks === 1) {
     return s.replace(BLANK_RE, `<span class="fill">${fillOpts.map(esc).join("、")}</span>`);
