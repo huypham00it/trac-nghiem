@@ -174,11 +174,11 @@ section h2{font-size:16px;margin:20px 0 8px}
     </div>
     <section>
       <h2>Dữ liệu tiến độ</h2>
-      <p class="help">Tiến độ lưu trong trình duyệt này. Xuất file để sao lưu hoặc chuyển sang máy khác.</p>
+      <p class="help">Tiến độ lưu trong trình duyệt này. Để chuyển sang máy khác: bấm “Xuất mã tiến độ”, sao chép đoạn mã, rồi dán vào ô bên dưới ở máy kia và bấm “Nhập”.</p>
+      <textarea id="t-io" rows="4" style="width:100%;font:12px ui-monospace,monospace;padding:8px;border:1px solid var(--line);border-radius:9px;background:var(--surface);color:var(--text)" placeholder="Mã tiến độ…"></textarea>
       <div class="actions">
-        <button class="btn" id="b-export">Xuất tiến độ</button>
-        <button class="btn" id="b-import">Nhập tiến độ</button>
-        <input type="file" id="f-import" accept="application/json" class="hide">
+        <button class="btn" id="b-export">Xuất mã tiến độ</button>
+        <button class="btn" id="b-import">Nhập từ mã đã dán</button>
         <button class="btn" id="b-reset" style="color:var(--bad)">Xóa toàn bộ tiến độ</button>
       </div>
     </section>
@@ -580,19 +580,16 @@ $("#s-shuffle").onchange = e => { db.settings.shuffle = e.target.checked; save()
 $("#s-randnew").onchange = e => { db.settings.randNew = e.target.checked; save(); };
 $("#s-theme").onchange = e => { db.settings.theme = e.target.value; save(); applyTheme(); };
 $("#b-export").onclick = () => {
-  const blob = new Blob([JSON.stringify(db, null, 1)], {type: "application/json"});
-  const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = `ail-tien-do-${dayKey()}.json`; a.click();
-  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  const t = $("#t-io"); t.value = JSON.stringify(db); t.focus(); t.select();
+  try { navigator.clipboard.writeText(t.value).then(() => alert("Đã sao chép mã tiến độ."), () => {}); } catch (_) {}
 };
-$("#b-import").onclick = () => $("#f-import").click();
-$("#f-import").onchange = async e => {
-  const f = e.target.files[0]; if (!f) return;
+$("#b-import").onclick = () => {
   try {
-    const d = JSON.parse(await f.text());
+    const d = JSON.parse($("#t-io").value);
     if (!d.cards) throw 0;
-    db = Object.assign(defaults(), d); save(); bindSettings(); applyTheme(); alert("Đã nhập tiến độ.");
-  } catch (_) { alert("File không hợp lệ."); }
-  e.target.value = "";
+    if (!confirm("Thay tiến độ hiện tại bằng mã đã dán?")) return;
+    db = Object.assign(defaults(), d); save(); bindSettings(); applyTheme(); cur = null; alert("Đã nhập tiến độ.");
+  } catch (_) { alert("Mã không hợp lệ."); }
 };
 $("#b-reset").onclick = () => {
   if (!confirm("Xóa toàn bộ tiến độ học? Không thể hoàn tác.")) return;
